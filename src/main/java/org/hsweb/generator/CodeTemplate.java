@@ -6,19 +6,34 @@ import org.hsweb.generator.template.TemplateOutput;
 import java.io.Serializable;
 
 /**
- * ����ģ��
- * Created by �� on 2016-03-17 0017.
+ * 代码模板
  */
 public class CodeTemplate implements Serializable {
+    /**
+     * 模板ID
+     */
     private String id;
 
+    /**
+     * 模板名字
+     */
     private String name;
 
+    /**
+     * 备注
+     */
     private String remark;
 
+    /**
+     * 模板输入
+     */
+    private TemplateInput input;
+
+    /**
+     * 模板输出
+     */
     private TemplateOutput output;
 
-    private TemplateInput input;
 
     public CodeTemplate() {
     }
@@ -32,7 +47,7 @@ public class CodeTemplate implements Serializable {
         this.name = name;
         this.remark = remark;
         setOutput(output);
-       setInput(input);
+        setInput(input);
     }
 
     public String getId() {

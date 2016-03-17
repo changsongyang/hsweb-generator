@@ -1,7 +1,7 @@
 package org.hsweb.generator.callback;
 
 /**
- * Created by �� on 2016-03-17 0017.
+ * 生成器执行进程回掉
  */
 public interface GeneratorProcessCallBack {
     void process(int step, String message);

@@ -6,12 +6,12 @@ import org.hsweb.generator.Generator;
 import org.hsweb.generator.GeneratorConfiguration;
 import org.junit.Test;
 
-/**
- * Created by �� on 2016-03-17 0017.
- */
 public class SampleTest {
+    /**
+     * 最简单的生成
+     */
     @Test
-    public void  test() {
+    public void test() {
 
         GeneratorConfiguration configuration = new GeneratorConfiguration();
 

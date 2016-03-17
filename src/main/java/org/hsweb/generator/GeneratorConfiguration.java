@@ -7,13 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by �� on 2016-03-17 0017.
+ * 代码生成配置
  */
 public class GeneratorConfiguration {
+    //配置名字
     private String name;
 
+    //模板列表
     private List<CodeTemplate> templates = new LinkedList<>();
 
+    //生成回掉
     private GeneratorProcessCallBack callBack = new GeneratorProcessCallBack() {
         @Override
         public void process(int step, String message) {
