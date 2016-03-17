@@ -11,6 +11,7 @@
     <modules>
         <module>generator-freemarker</module>
         <module>generator-database</module>
+        <module>generator-boot</module>
     </modules>
 
     <repositories>
