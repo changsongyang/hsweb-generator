@@ -6,7 +6,7 @@ import org.hsweb.generator.Generator;
 import org.hsweb.generator.GeneratorConfiguration;
 import org.junit.Test;
 
-public class SampleTest {
+public class SimpleTest {
     /**
      * 最简单的生成
      */
