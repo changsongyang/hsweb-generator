@@ -10,46 +10,49 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 基于KeyListener的快捷键支持
  * Created by 浩 on 2016-03-18 0018.
  */
 public class ShortCutsAdapter extends KeyAdapter {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private Map<String, ShortcutsCallBack> callBackList = new ConcurrentHashMap<>();
-    private boolean consume;
+    //快捷键监听器
+    private Map<String, ShortCutsListener> listenerMap = new ConcurrentHashMap<>();
+
+    //当前按下了哪些按钮
     private Set<String> nowPressed = new LinkedHashSet<>();
 
-    public void bind(String key, ShortcutsCallBack callBack) {
+    /**
+     * 绑定一个快捷键，并传入快捷键监听器
+     *
+     * @param key      快捷键，不区分大小写。多个案件使用+链接，如：Ctrl+C
+     * @param listener 回掉接口，按下快捷键时，触发监听器事件
+     */
+    public void bind(String key, ShortCutsListener listener) {
         key = key.toLowerCase();
-        if (callBack == null)
-            callBackList.remove(key);
+        if (listener == null)
+            listenerMap.remove(key);
         else
-            callBackList.put(key, callBack);
+            listenerMap.put(key, listener);
     }
 
+    /**
+     * 执行一个快捷键回掉
+     */
     protected void on(String key) {
-        ShortcutsCallBack callBack = callBackList.get(key);
+        ShortCutsListener listener = listenerMap.get(key);
         logger.info(key);
-        if (null != callBack) {
+        if (null != listener) {
 
-            callBack.press();
+            listener.press();
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(consume){
-            e.consume();
-        }
         String text = KeyEvent.getKeyText(e.getKeyCode());
         if (text == null) return;
         nowPressed.add(text.toLowerCase());
-        if (nowPressed.size() > 0) {
-            on(StringUtils.concatSpiltWith("+", nowPressed.toArray()));
-        }
-    }
-
-    public void setConsume(boolean consume) {
-        this.consume = consume;
+        on(StringUtils.concatSpiltWith("+", nowPressed.toArray()));
     }
 
     @Override
