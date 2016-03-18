@@ -1,16 +1,21 @@
 package org.hsweb.generator.swing;
 
 import org.hsweb.generator.boot.GeneratorApplication;
-import org.hsweb.generator.swing.logger.JTextAreaLoggerAppender;
+import org.hsweb.generator.boot.register.AbstractRegister;
+import org.hsweb.generator.boot.register.PropertiesRegister;
+import org.hsweb.generator.boot.register.Register;
 import org.hsweb.generator.swing.panel.GeneratorConfigPanel;
 import org.hsweb.generator.swing.panel.GeneratorPanel;
+import org.hsweb.generator.swing.panel.StartGeneratorPanel;
 import org.hsweb.generator.swing.panel.VarPanel;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Properties;
 
 /**
  * Created by 浩 on 2016-03-18 0018.
@@ -23,6 +28,8 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
     public static final Font BASIC_FONT_MIN = new Font("微软雅黑", Font.BOLD, 13);
 
     private java.util.List<GeneratorPanel> panels = new LinkedList<>();
+
+    private java.util.Map<Class<? extends Register>, Register> registerMap = new HashMap<>();
 
     public void registerPanel(GeneratorPanel panel) {
         panels.add(panel);
@@ -38,6 +45,8 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         this.setBackground(new Color(43, 43, 43));
         this.setForeground(new Color(43, 43, 43));
         this.setFont(BASIC_FONT);
+        //设置注册器
+        registerMap.put(PropertiesRegister.class, new PropertiesRegister());
     }
 
     protected void renderPanel() {
@@ -63,20 +72,6 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         this.add(tabbedPane);
     }
 
-    public JLabel createLabel(String name) {
-        JLabel label = new JLabel(name, SwingConstants.RIGHT);
-        label.setFont(BASIC_FONT);
-        label.setSize(100, 20);
-        return label;
-    }
-
-    public JTextField createInput() {
-        JTextField textField = new JTextField();
-        textField.setFont(BASIC_FONT_MIN);
-        textField.setSize(100, 25);
-        return textField;
-    }
-
     @Override
     public String getName() {
         return "swing";
@@ -86,6 +81,7 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
     public void startup() {
         registerPanel(new VarPanel());
         registerPanel(new GeneratorConfigPanel());
+        registerPanel(new StartGeneratorPanel());
         renderPanel();
         this.setVisible(true);
     }
@@ -93,6 +89,11 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
     @Override
     public void shutdown() {
         System.exit(0);
+    }
+
+    @Override
+    public <T extends Register> T getRegister(Class<? extends Register> type) {
+        return (T) registerMap.get(type);
     }
 
 }
