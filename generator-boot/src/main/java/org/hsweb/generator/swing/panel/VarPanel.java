@@ -33,10 +33,10 @@ public class VarPanel extends LayoutGeneratorPanel {
      * 默认配置
      */
     private Object[][] defaultVar = new Object[][]{
-            {"jdbc.driver.class", "com.mysql.jdbc.Driver", "JDBC驱动系统(变量请勿删除)"},
-            {"jdbc.url", "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8", "数据库链接(变量请勿删除)"},
-            {"jdbc.username", "root", "数据库用户名(变量请勿删除)"},
-            {"jdbc.password", "root", "数据库密码(变量请勿删除)"},
+            {"jdbc.driver.class", "com.mysql.jdbc.Driver", "JDBC驱动(系统变量请勿删除)"},
+            {"jdbc.url", "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8", "数据库链接(系统变量请勿删除)"},
+            {"jdbc.username", "root", "数据库用户名(系统变量请勿删除)"},
+            {"jdbc.password", "root", "数据库密码(系统变量请勿删除)"},
             {"target", "/home/workspace/generator-test/", "代码输出目录"},
             {"function", "test", "功能(目录)名称"},
             {"beanName", "Test", "bean名称"}
