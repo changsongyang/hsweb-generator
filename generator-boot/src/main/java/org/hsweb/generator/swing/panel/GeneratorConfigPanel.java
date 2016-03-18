@@ -2,6 +2,9 @@ package org.hsweb.generator.swing.panel;
 
 import org.hsweb.generator.swing.SwingGeneratorApplication;
 import org.hsweb.generator.swing.panel.support.FileChooserCellEditor;
+import org.hsweb.generator.swing.panel.support.ShortCutsAdapter;
+import org.hsweb.generator.swing.panel.support.ShortCutsListener;
+import org.hsweb.generator.swing.utils.JTableUtils;
 import org.webbuilder.office.excel.ExcelIO;
 
 import javax.swing.*;
@@ -26,7 +29,12 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
     protected final String templateColumnNames[] = {"模板名称", "模板类型", "备注", "输入", "输出"};
 
     private Component[][] components;
+
     private JTable fieldTable = null, templateTable = null;
+
+    private ShortCutsAdapter fieldTableShortCuts = new ShortCutsAdapter();
+
+    private ShortCutsAdapter templateTableShortCuts = new ShortCutsAdapter();
 
     @Override
     public String getTooltip() {
@@ -41,9 +49,8 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
     @Override
     public void init(SwingGeneratorApplication application) {
         super.init(application);
-        setLayout(null);
         createComponents();
-        layoutComponent();
+        layoutComponents();
     }
 
     private void createTemplateTable() {
@@ -97,6 +104,14 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 setSelectionBackground(new Color(227, 227, 227));
             }
         };
+        initTemplateTableShortCuts();
+        templateTable.addKeyListener(templateTableShortCuts);
+        templateTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                e.consume();
+            }
+        });
     }
 
     private void createFieldTable() {
@@ -123,40 +138,17 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
                 setRowHeight(18);
                 setSelectionBackground(new Color(227, 227, 227));
-                addKeyListener(new KeyAdapter() {
-                    boolean ctrl = false;
-                    boolean z = false;
-                    boolean y = false;
 
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
-                            ctrl = true;
-                        } else if (e.getKeyCode() == KeyEvent.VK_Z) {
-                            z = true;
-                        } else if (e.getKeyCode() == KeyEvent.VK_Y) {
-                            y = true;
-                        }
-                        if (ctrl && z) {
-                            ctrlZ();
-                        } else if (ctrl && y) {
-                            ctrlY();
-                        }
-                    }
-
-                    @Override
-                    public void keyReleased(KeyEvent e) {
-                        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
-                            ctrl = false;
-                        } else if (e.getKeyCode() == KeyEvent.VK_Z) {
-                            z = false;
-                        } else if (e.getKeyCode() == KeyEvent.VK_Y) {
-                            y = false;
-                        }
-                    }
-                });
             }
         };
+        initFieldTableShortCuts();
+        fieldTable.addKeyListener(fieldTableShortCuts);
+        fieldTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                e.consume();
+            }
+        });
     }
 
     protected void createComponents() {
@@ -181,7 +173,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                             addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-
+                                    JTableUtils.removeSelectedRows(fieldTable);
                                 }
                             });
                         }},
@@ -251,7 +243,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                             addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-
+                                    JTableUtils.removeSelectedRows(templateTable);
                                 }
                             });
                         }},
@@ -267,16 +259,34 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         };
     }
 
-    protected void ctrlZ() {
+    protected void initTemplateTableShortCuts() {
+        templateTableShortCuts.bind("Ctrl+V", new ShortCutsListener() {
+            @Override
+            public void press() {
 
+            }
+        });
+        templateTableShortCuts.bind("Ctrl+D", new ShortCutsListener() {
+            @Override
+            public void press() {
+                JTableUtils.removeSelectedRows(templateTable);
+            }
+        });
     }
 
-    protected void ctrlY() {
+    protected void initFieldTableShortCuts() {
+        fieldTableShortCuts.bind("Ctrl+V", new ShortCutsListener() {
+            @Override
+            public void press() {
 
-    }
-
-    protected void ctrlV() {
-
+            }
+        });
+        fieldTableShortCuts.bind("Ctrl+D", new ShortCutsListener() {
+            @Override
+            public void press() {
+                JTableUtils.removeSelectedRows(fieldTable);
+            }
+        });
     }
 
     @Override

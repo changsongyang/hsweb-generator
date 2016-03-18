@@ -13,7 +13,7 @@ public abstract class LayoutGeneratorPanel extends GeneratorPanel {
 
     public abstract Component[][] getComponentArray();
 
-    public void layoutComponent() {
+    public void layoutComponents() {
         int x = 20, y = 20;
         for (Component[] component : getComponentArray()) {
             int maxH = 0;
@@ -33,5 +33,6 @@ public abstract class LayoutGeneratorPanel extends GeneratorPanel {
     @Override
     public void init(SwingGeneratorApplication application) {
         this.application = application;
+        setLayout(null);
     }
 }

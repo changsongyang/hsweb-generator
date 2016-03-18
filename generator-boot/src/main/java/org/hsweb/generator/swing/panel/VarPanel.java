@@ -1,13 +1,16 @@
 package org.hsweb.generator.swing.panel;
 
 
+import org.hsweb.generator.boot.register.PropertiesRegister;
+import org.hsweb.generator.boot.register.Register;
+import org.hsweb.generator.boot.register.Wrapper;
 import org.hsweb.generator.swing.SwingGeneratorApplication;
 import org.hsweb.generator.swing.panel.support.ShortCutsAdapter;
-import org.hsweb.generator.swing.panel.support.ShortcutsCallBack;
+import org.hsweb.generator.swing.panel.support.ShortCutsListener;
+import org.hsweb.generator.swing.utils.JTableUtils;
 import org.hsweb.generator.swing.utils.clipboard.ClipboardUtils;
 
 import javax.swing.*;
-import javax.swing.event.AncestorListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -70,25 +73,6 @@ public class VarPanel extends LayoutGeneratorPanel {
         }
     }
 
-    /**
-     * 删除选中的行
-     */
-    protected void removeSelectedRows() {
-        int selections[] = table.getSelectedRows();
-        if (selections.length > 0)
-            try {
-                int lastIndex = selections[0];
-                for (int i = selections.length; i > 0; i--) {
-                    ((DefaultTableModel) table.getModel()).removeRow(table.getSelectedRow());
-                }
-                if (table.getRowCount() > 0) {
-                    table.setRowSelectionInterval(lastIndex - 1, lastIndex - 1);
-                }
-            } catch (Exception e1) {
-                if (table.getRowCount() > 0)
-                    table.setRowSelectionInterval(0, 0);
-            }
-    }
 
     /**
      * 创建面板上的组件
@@ -112,14 +96,14 @@ public class VarPanel extends LayoutGeneratorPanel {
                             addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-                                    removeSelectedRows();
+                                    JTableUtils.removeSelectedRows(table);
                                 }
                             });
                         }},
                 }
                 ,
                 {
-                          new JScrollPane() {{
+                        new JScrollPane() {{
                             setSize(SwingGeneratorApplication.WIDTH - 50, SwingGeneratorApplication.HEIGHT - 150);
                             setViewportView(table);
                         }}
@@ -132,7 +116,7 @@ public class VarPanel extends LayoutGeneratorPanel {
      */
     public void initShortCuts() {
         shortCutsAdapter = new ShortCutsAdapter();
-        shortCutsAdapter.bind("Ctrl+V", new ShortcutsCallBack() {
+        shortCutsAdapter.bind("Ctrl+V", new ShortCutsListener() {
             @Override
             public void press() {
                 //获取剪贴板上的配置到表格
@@ -142,10 +126,10 @@ public class VarPanel extends LayoutGeneratorPanel {
                 }
             }
         });
-        shortCutsAdapter.bind("Ctrl+D", new ShortcutsCallBack() {
+        shortCutsAdapter.bind("Ctrl+D", new ShortCutsListener() {
             @Override
             public void press() {
-                removeSelectedRows();
+                JTableUtils.removeSelectedRows(table);
             }
         });
     }
@@ -154,10 +138,31 @@ public class VarPanel extends LayoutGeneratorPanel {
     public void init(SwingGeneratorApplication application) {
         super.init(application);
         initShortCuts();
-        setLayout(null);
         createVarTable();
         createComponents();
-        layoutComponent();
+        layoutComponents();
+        //向应用注册一个配置获取器
+        Register<Properties> propertiesRegister = application.getRegister(PropertiesRegister.class);
+        if (propertiesRegister != null) {
+            propertiesRegister.register(new Wrapper<Properties>() {
+                @Override
+                public Properties get() {
+                    return getTableDataAsProperties();
+                }
+            });
+        }
+    }
+
+    /**
+     * 获取Properties格式的表格数据
+     */
+    protected Properties getTableDataAsProperties() {
+        Properties properties = new Properties();
+        int rowCount = table.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            properties.put(table.getValueAt(i, 0), table.getValueAt(i, 1));
+        }
+        return properties;
     }
 
     @Override
