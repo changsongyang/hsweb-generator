@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.webbuilder.sql.DataBase;
 import org.webbuilder.sql.FieldMetaData;
 import org.webbuilder.sql.TableMetaData;
-import org.webbuilder.sql.parser.CommonTableMetaDataParser;
 import org.webbuilder.utils.file.FileUtils;
 
 import java.io.IOException;
@@ -27,6 +26,7 @@ public class GeneratorTests {
     @Before
     public void setup() throws IOException {
         dataBase = DatabaseFactory.createMysqlDatabase(FileUtils.getResourceAsProperties("jdbc.properties"));
+
     }
 
     @After
