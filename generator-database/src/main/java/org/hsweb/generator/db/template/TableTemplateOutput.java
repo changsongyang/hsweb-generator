@@ -30,6 +30,8 @@ public class TableTemplateOutput implements TemplateOutput {
             if (metaData != null) {
                 try {
                     dataBase.createTable(metaData);
+                } catch (RuntimeException e) {
+                    throw e;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
