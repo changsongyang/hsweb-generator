@@ -1,13 +1,9 @@
 package org.hsweb.generator.swing;
 
 import org.hsweb.generator.boot.GeneratorApplication;
-import org.hsweb.generator.boot.register.AbstractRegister;
 import org.hsweb.generator.boot.register.PropertiesRegister;
 import org.hsweb.generator.boot.register.Register;
-import org.hsweb.generator.swing.panel.GeneratorConfigPanel;
-import org.hsweb.generator.swing.panel.GeneratorPanel;
-import org.hsweb.generator.swing.panel.StartGeneratorPanel;
-import org.hsweb.generator.swing.panel.VarPanel;
+import org.hsweb.generator.swing.panel.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -15,9 +11,9 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Properties;
 
 /**
+ * 基于swing的代码生成器
  * Created by 浩 on 2016-03-18 0018.
  */
 public class SwingGeneratorApplication extends JFrame implements GeneratorApplication {
@@ -27,8 +23,10 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
 
     public static final Font BASIC_FONT_MIN = new Font("微软雅黑", Font.BOLD, 13);
 
+    //面板集合
     private java.util.List<GeneratorPanel> panels = new LinkedList<>();
 
+    //注册器集合
     private java.util.Map<Class<? extends Register>, Register> registerMap = new HashMap<>();
 
     public void registerPanel(GeneratorPanel panel) {
@@ -79,10 +77,14 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
 
     @Override
     public void startup() {
+        registerPanel(new AboutPanel());
+        //注册面板
         registerPanel(new VarPanel());
         registerPanel(new GeneratorConfigPanel());
         registerPanel(new StartGeneratorPanel());
+        //渲染面板
         renderPanel();
+        //开启窗口
         this.setVisible(true);
     }
 

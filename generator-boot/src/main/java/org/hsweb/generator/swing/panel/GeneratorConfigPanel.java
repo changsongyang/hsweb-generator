@@ -38,12 +38,12 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
 
     @Override
     public String getTooltip() {
-        return "代码生成";
+        return "模板配置";
     }
 
     @Override
     public String getTitle() {
-        return "代码生成";
+        return "模板配置";
     }
 
     @Override
@@ -100,7 +100,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 setSize(SwingGeneratorApplication.WIDTH - 70, 190);
                 setRowMargin(2);
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                setRowHeight(18);
+                setRowHeight(22);
                 setSelectionBackground(new Color(227, 227, 227));
             }
         };
@@ -136,7 +136,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 setSize(SwingGeneratorApplication.WIDTH - 70, 190);
                 setRowMargin(2);
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                setRowHeight(18);
+                setRowHeight(20);
                 setSelectionBackground(new Color(227, 227, 227));
 
             }

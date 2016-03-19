@@ -43,9 +43,10 @@ public class StartGeneratorPanel extends LayoutGeneratorPanel {
                             });
                         }}
                 },
+                {},
                 {
                         new JScrollPane() {{
-                            setSize(SwingGeneratorApplication.WIDTH - 50, 200);
+                            setSize(SwingGeneratorApplication.WIDTH - 50, 400);
                             setViewportView(console);
                         }}
                 }
