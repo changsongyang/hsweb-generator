@@ -16,7 +16,7 @@ public class GeneratorConfiguration {
     //模板列表
     private List<CodeTemplate> templates = new LinkedList<>();
 
-    //生成回掉
+    //生成回调
     private GeneratorProcessCallBack callBack = new GeneratorProcessCallBack() {
         @Override
         public void process(int step, String message) {
