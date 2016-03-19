@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 public class ClipboardUtils {
     /**
-     * 获取粘贴板内容，获取内容后，将数据传给回掉
+     * 获取粘贴板内容，获取内容后，将数据传给回调
      *
      * @param clipboardCallBack
      */

@@ -77,8 +77,8 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
 
     @Override
     public void startup() {
-        registerPanel(new AboutPanel());
         //注册面板
+        registerPanel(new AboutPanel());
         registerPanel(new VarPanel());
         registerPanel(new GeneratorConfigPanel());
         registerPanel(new StartGeneratorPanel());

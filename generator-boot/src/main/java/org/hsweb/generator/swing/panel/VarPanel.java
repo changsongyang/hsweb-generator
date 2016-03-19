@@ -74,7 +74,6 @@ public class VarPanel extends LayoutGeneratorPanel {
         }
     }
 
-
     /**
      * 创建面板上的组件
      */

@@ -25,7 +25,7 @@ public class ShortCutsAdapter extends KeyAdapter {
      * 绑定一个快捷键，并传入快捷键监听器
      *
      * @param key      快捷键，不区分大小写。多个案件使用+链接，如：Ctrl+C
-     * @param listener 回掉接口，按下快捷键时，触发监听器事件
+     * @param listener 监听器，按下快捷键时，触发监听器事件
      */
     public void bind(String key, ShortCutsListener listener) {
         key = key.toLowerCase();
@@ -36,7 +36,7 @@ public class ShortCutsAdapter extends KeyAdapter {
     }
 
     /**
-     * 执行一个快捷键回掉
+     * 执行一个快捷键监听器
      */
     protected void on(String key) {
         ShortCutsListener listener = listenerMap.get(key);
