@@ -62,7 +62,6 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                     this.addItem("文件模板");
                     this.addItem("数据库操作");
                 }}));
-
                 //输入
                 FileChooserCellEditor input = new FileChooserCellEditor(new JTextField());
                 input.setFileFilter(new FileFilter() {
@@ -79,7 +78,6 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                     }
                 });
                 getColumn("输入").setCellEditor(input);
-
                 //输出目录
                 FileChooserCellEditor output = new FileChooserCellEditor(new JTextField());
                 output.setFileFilter(new FileFilter() {
@@ -96,16 +94,17 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                     }
                 });
                 getColumn("输出").setCellEditor(output);
-
                 setSize(SwingGeneratorApplication.WIDTH - 70, 190);
                 setRowMargin(2);
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
                 setRowHeight(22);
-                setSelectionBackground(new Color(227, 227, 227));
-            }
+                setSelectionBackground(new Color(227, 227, 227));            }
         };
         initTemplateTableShortCuts();
+        //设置当失去焦点时取消编辑
+        templateTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         templateTable.addKeyListener(templateTableShortCuts);
+        //此监听器用于解决当按下快捷键删除行操作时，导致表格进入编辑状态。
         templateTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -142,6 +141,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
             }
         };
         initFieldTableShortCuts();
+        fieldTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         fieldTable.addKeyListener(fieldTableShortCuts);
         fieldTable.addKeyListener(new KeyAdapter() {
             @Override

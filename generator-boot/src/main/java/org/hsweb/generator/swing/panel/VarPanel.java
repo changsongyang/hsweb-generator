@@ -60,6 +60,7 @@ public class VarPanel extends LayoutGeneratorPanel {
                 setSelectionBackground(new Color(227, 227, 227));
             }
         };
+        table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         table.addKeyListener(shortCutsAdapter);
         table.addKeyListener(new KeyAdapter() {
             @Override
