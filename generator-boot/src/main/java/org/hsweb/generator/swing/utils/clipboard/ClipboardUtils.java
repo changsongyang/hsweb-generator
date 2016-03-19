@@ -69,10 +69,8 @@ public class ClipboardUtils {
                 Properties temp = new Properties();
                 try {
                     temp.load(new StringReader(text));
+                    properties.putAll(temp);
                 } catch (IOException e) {
-                }
-                for (Object o : temp.keySet()) {
-                    properties.setProperty(o.toString(), temp.getProperty(o.toString()));
                 }
             }
 
@@ -83,21 +81,19 @@ public class ClipboardUtils {
                         Properties temp = new Properties();
                         try {
                             temp.load(new FileInputStream(file));
+                            properties.putAll(temp);
                         } catch (IOException e) {
-                        }
-                        for (Object o : temp.keySet()) {
-                            properties.setProperty(o.toString(), temp.getProperty(o.toString()));
                         }
                     }
                 }
             }
-
         });
         return properties;
     }
 
     /**
      * 读取剪贴板的内容为一个二维数组模拟的表格数组
+     * 获取方式为：按\n切割为行，再通过\t切割为列
      *
      * @return 二维数组
      */
