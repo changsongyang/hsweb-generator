@@ -1,6 +1,6 @@
-package org.hsweb.generator.boot;
+package org.hsweb.generator.app;
 
-import org.hsweb.generator.boot.register.Register;
+import org.hsweb.generator.app.register.Register;
 
 /**
  * 代码生成器应用接口，所有代码生成器应用程序都应实现此接口
@@ -31,4 +31,5 @@ public interface GeneratorApplication {
      * @return
      */
     <T extends Register> T getRegister(Class<? extends Register> type);
+
 }

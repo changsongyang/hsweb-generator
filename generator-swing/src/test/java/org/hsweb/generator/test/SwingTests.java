@@ -1,6 +1,7 @@
 package org.hsweb.generator.test;
 
-import org.hsweb.generator.boot.GeneratorApplication;
+import org.hsweb.generator.app.register.CodeTemplateRegister;
+import org.hsweb.generator.app.register.MetaRegister;
 import org.hsweb.generator.swing.SwingGeneratorApplication;
 
 /**
@@ -9,7 +10,9 @@ import org.hsweb.generator.swing.SwingGeneratorApplication;
 public class SwingTests {
 
     public static void main(String[] args) {
-        GeneratorApplication application = new SwingGeneratorApplication();
+        SwingGeneratorApplication application = new SwingGeneratorApplication();
+        application.setRegister(CodeTemplateRegister.class, new CodeTemplateRegister());
+        application.setRegister(MetaRegister.class, new MetaRegister());
         application.startup();
     }
 }

@@ -1,11 +1,23 @@
 package org.hsweb.generator.swing.panel;
 
+import org.hsweb.generator.CodeMeta;
+import org.hsweb.generator.CodeTemplate;
+import org.hsweb.generator.app.register.CodeTemplateRegister;
+import org.hsweb.generator.app.register.MetaRegister;
+import org.hsweb.generator.app.register.PropertiesRegister;
+import org.hsweb.generator.app.register.Wrapper;
+import org.hsweb.generator.db.DatabaseFactory;
+import org.hsweb.generator.db.FormCodeMeta;
+import org.hsweb.generator.db.template.TableTemplateInput;
+import org.hsweb.generator.db.template.TableTemplateOutput;
+import org.hsweb.generator.freemaker.template.FreemarkerTemplateDynamicOutput;
 import org.hsweb.generator.swing.SwingGeneratorApplication;
 import org.hsweb.generator.swing.panel.support.FileChooserCellEditor;
 import org.hsweb.generator.swing.panel.support.ShortCutsAdapter;
 import org.hsweb.generator.swing.panel.support.ShortCutsListener;
 import org.hsweb.generator.swing.utils.JTableUtils;
-import org.webbuilder.office.excel.ExcelIO;
+import org.hsweb.generator.template.FileTemplateInput;
+import org.webbuilder.sql.TableMetaData;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -16,8 +28,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.*;
+import java.util.List;
 
 /**
  * Created by 浩 on 2016-03-18 0018.
@@ -25,8 +38,10 @@ import java.util.Map;
 public class GeneratorConfigPanel extends LayoutGeneratorPanel {
 
     protected final String columnNames[] = {"名称", "java类", "数据类型", "备注", "默认值", "主键", "不能为空", "自定义属性(json)"};
+    protected final String filedMapper[] = {"name", "javaType", "dataType", "comment", "defaultValue", "primaryKey", "notNull", "attr"};
 
     protected final String templateColumnNames[] = {"模板名称", "模板类型", "备注", "输入", "输出"};
+    protected final String templateColumnMapper[] = {"name", "type", "comment", "input", "output"};
 
     private Component[][] components;
 
@@ -51,6 +66,91 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         super.init(application);
         createComponents();
         layoutComponents();
+        MetaRegister codeMetaRegister = application.getRegister(MetaRegister.class);
+        CodeTemplateRegister templateRegister = application.getRegister(CodeTemplateRegister.class);
+        if (codeMetaRegister == null) {
+            throw new RuntimeException("MetaRegister not found!");
+        }
+        if (templateRegister == null) {
+            throw new RuntimeException("CodeTemplateRegister not found!");
+        }
+        codeMetaRegister.register(new Wrapper<List<CodeMeta>>() {
+            @Override
+            public List<CodeMeta> get() {
+                return buildCodeMeta();
+            }
+        });
+        templateRegister.register(new Wrapper<List<CodeTemplate>>() {
+            @Override
+            public List<CodeTemplate> get() {
+                return buildCodeTemplate();
+            }
+        });
+    }
+
+    protected List<CodeMeta> buildCodeMeta() {
+        int rows = fieldTable.getRowCount();
+        List<CodeMeta> codeMetas = new ArrayList<>();
+        for (int i = 0; i < rows; i++) {
+            FormCodeMeta meta = new FormCodeMeta();
+            for (int i1 = 0; i1 < filedMapper.length; i1++) {
+                Object o = fieldTable.getValueAt(i, i1);
+                meta.setProperty(filedMapper[i1], o);
+            }
+            codeMetas.add(meta);
+        }
+        return codeMetas;
+    }
+
+    protected List<CodeTemplate> buildCodeTemplate() {
+        //获取模板配置信息
+        int rows = templateTable.getRowCount();
+        List<Map<String, Object>> rowData = new ArrayList<>();
+        for (int i = 0; i < rows; i++) {
+            Map<String, Object> row = new HashMap<>();
+            for (int i1 = 0; i1 < templateColumnMapper.length; i1++) {
+                row.put(templateColumnMapper[i1], templateTable.getValueAt(i, i1));
+            }
+            rowData.add(row);
+        }
+        //获取变量配置
+        PropertiesRegister propertiesRegister = application.getRegister(PropertiesRegister.class);
+        Properties config = propertiesRegister.getMergedData();
+        logger.debug("获取配置:" + config);
+        Map<String, Object> var = new HashMap<>();
+        for (Map.Entry<Object, Object> configEntry : config.entrySet()) {
+            var.put(String.valueOf(configEntry.getKey()), configEntry.getValue());
+        }
+        //生成表定义数据
+        TableMetaData metaData = new TableMetaData();
+        String tableName = config.getProperty("table.name");
+        String tableComment = config.getProperty("table.comment");
+        String tableAlias = config.getProperty("table.alias");
+        var.put("tableMeta", metaData);
+
+        metaData.setName(tableName);
+        metaData.setComment(tableComment);
+        metaData.setAlias(tableAlias);
+        for (CodeMeta meta : buildCodeMeta()) {
+            metaData.addField(((FormCodeMeta) meta).getMetaData());
+        }
+
+        List<CodeTemplate> codeTemplates = new ArrayList<>();
+        for (Map<String, Object> row : rowData) {
+            CodeTemplate template = new CodeTemplate();
+            template.setName(String.valueOf(row.get("name")));
+            if ("freemarker".equals(row.get("type"))) {
+                FileTemplateInput input = new FileTemplateInput(new File(String.valueOf(row.get("input"))));
+                input.setConfig(var);
+                template.setInput(input);
+                template.setOutput(new FreemarkerTemplateDynamicOutput(String.valueOf(row.get("output"))));
+            } else if ("数据库操作".equals(row.get("type"))) {
+                template.setInput(new TableTemplateInput(metaData));
+                template.setOutput(new TableTemplateOutput(DatabaseFactory.createMysqlDatabase(config)));
+            }
+            codeTemplates.add(template);
+        }
+        return codeTemplates;
     }
 
     private void createTemplateTable() {
@@ -59,17 +159,20 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         templateTable = new JTable(model) {
             {
                 getColumn("模板类型").setCellEditor(new DefaultCellEditor(new JComboBox() {{
-                    this.addItem("文件模板");
+                    this.addItem("freemarker");
                     this.addItem("数据库操作");
                 }}));
                 //输入
-                FileChooserCellEditor input = new FileChooserCellEditor(new JTextField());
+                FileChooserCellEditor input = new FileChooserCellEditor(new JTextField()) {
+                    @Override
+                    public boolean isFileOnly() {
+                        return true;
+                    }
+                };
                 input.setFileFilter(new FileFilter() {
                     @Override
                     public boolean accept(File f) {
-                        if (f.isFile())
-                            return true;
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -98,7 +201,8 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 setRowMargin(2);
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
                 setRowHeight(22);
-                setSelectionBackground(new Color(227, 227, 227));            }
+                setSelectionBackground(new Color(227, 227, 227));
+            }
         };
         initTemplateTableShortCuts();
         //设置当失去焦点时取消编辑
@@ -137,7 +241,6 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
                 setRowHeight(20);
                 setSelectionBackground(new Color(227, 227, 227));
-
             }
         };
         initFieldTableShortCuts();
@@ -176,47 +279,48 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                                     JTableUtils.removeSelectedRows(fieldTable);
                                 }
                             });
-                        }},
-                        new JButton("导入excel") {{
-                            setSize(80, 25);
-                            setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                            setMargin(new Insets(0, 0, 0, 0));
-                            addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    JFileChooser chooser = new JFileChooser();
-                                    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                                    chooser.setFileFilter(new FileFilter() {
-                                        @Override
-                                        public boolean accept(File f) {
-                                            if (f.isDirectory()) return true;
-                                            return f.getName().endsWith("xls") || f.getName().endsWith("xlsx");
-                                        }
-
-                                        @Override
-                                        public String getDescription() {
-                                            return "excel文档";
-                                        }
-                                    });
-                                    chooser.setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                                    chooser.showOpenDialog(null);
-                                    File f = chooser.getSelectedFile();
-                                    if (f == null)
-                                        return;
-                                    if (f.getName() != "xls" && f.getName() != "xlsx") {
-                                        try {
-                                            java.util.List<Map<String, Object>> datas = ExcelIO.read2Map(new FileInputStream(f));
-                                            logger.info("导入excel成功!");
-                                        } catch (Exception e1) {
-                                            logger.error("加载文件失败", e1);
-                                        }
-                                    } else {
-                                        logger.info("格式错误，只支持xls和xlsx格式的文件！");
-                                    }
-
-                                }
-                            });
                         }}
+//                        ,
+//                        new JButton("导入excel") {{
+//                            setSize(80, 25);
+//                            setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
+//                            setMargin(new Insets(0, 0, 0, 0));
+//                            addActionListener(new ActionListener() {
+//                                @Override
+//                                public void actionPerformed(ActionEvent e) {
+//                                    JFileChooser chooser = new JFileChooser();
+//                                    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+//                                    chooser.setFileFilter(new FileFilter() {
+//                                        @Override
+//                                        public boolean accept(File f) {
+//                                            if (f.isDirectory()) return true;
+//                                            return f.getName().endsWith("xls") || f.getName().endsWith("xlsx");
+//                                        }
+//
+//                                        @Override
+//                                        public String getDescription() {
+//                                            return "excel文档";
+//                                        }
+//                                    });
+//                                    chooser.setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
+//                                    chooser.showOpenDialog(null);
+//                                    File f = chooser.getSelectedFile();
+//                                    if (f == null)
+//                                        return;
+//                                    if (f.getName() != "xls" && f.getName() != "xlsx") {
+//                                        try {
+//                                            java.util.List<Map<String, Object>> datas = ExcelIO.read2Map(new FileInputStream(f));
+//                                            logger.info("导入excel成功!");
+//                                        } catch (Exception e1) {
+//                                            logger.error("加载文件失败", e1);
+//                                        }
+//                                    } else {
+//                                        logger.info("格式错误，只支持xls和xlsx格式的文件！");
+//                                    }
+//
+//                                }
+//                            });
+//                        }}
                 },
                 //第二行
                 {
@@ -233,7 +337,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                             addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-                                    ((DefaultTableModel) templateTable.getModel()).addRow(new Object[]{"Controller", "文件模板", "新建模板", ""});
+                                    ((DefaultTableModel) templateTable.getModel()).addRow(new Object[]{"Controller", "freemarker", "新建模板", ""});
                                 }
                             });
                         }},
@@ -297,5 +401,37 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
     @Override
     public Component[][] getComponentArray() {
         return components;
+    }
+
+    @Override
+    public void load(Serializable o) {
+        if (o instanceof ArrayList) {
+            int rowCount = templateTable.getRowCount();
+            for (int i = 0; i < rowCount; i++) {
+                ((DefaultTableModel) templateTable.getModel()).removeRow(i);
+            }
+            for (Object[] data : ((ArrayList<Object[]>) o)) {
+                ((DefaultTableModel) templateTable.getModel()).addRow(data);
+            }
+        }
+    }
+
+    @Override
+    public Serializable getConfig() {
+        int rowCount = templateTable.getRowCount();
+        ArrayList<Object[]> arrayList = new ArrayList<>();
+        for (int i = 0; i < rowCount; i++) {
+            Object[] row = new Object[templateColumnNames.length];
+            for (int x = 0; x < templateColumnNames.length; x++) {
+                row[x] = templateTable.getValueAt(i, x);
+            }
+            arrayList.add(row);
+        }
+        return arrayList;
+    }
+
+    @Override
+    public String getConfigName() {
+        return "template.cfg";
     }
 }

@@ -1,4 +1,4 @@
-package org.hsweb.generator.boot.register;
+package org.hsweb.generator.app.register;
 
 /**
  * 数据包装器，调用包装器获取数据

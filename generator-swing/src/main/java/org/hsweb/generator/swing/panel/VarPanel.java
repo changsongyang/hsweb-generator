@@ -1,9 +1,9 @@
 package org.hsweb.generator.swing.panel;
 
 
-import org.hsweb.generator.boot.register.PropertiesRegister;
-import org.hsweb.generator.boot.register.Register;
-import org.hsweb.generator.boot.register.Wrapper;
+import org.hsweb.generator.app.register.PropertiesRegister;
+import org.hsweb.generator.app.register.Register;
+import org.hsweb.generator.app.register.Wrapper;
 import org.hsweb.generator.swing.SwingGeneratorApplication;
 import org.hsweb.generator.swing.panel.support.ShortCutsAdapter;
 import org.hsweb.generator.swing.panel.support.ShortCutsListener;
@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 import java.util.Properties;
 
 /**
@@ -42,7 +43,9 @@ public class VarPanel extends LayoutGeneratorPanel {
             {"jdbc.password", "root", "数据库密码(系统变量请勿删除)"},
             {"target", "/home/workspace/generator-test/", "代码输出目录"},
             {"function", "test", "功能(目录)名称"},
-            {"beanName", "Test", "bean名称"}
+            {"beanName", "Test", "bean名称"},
+            {"table.name", "s_test", "数据库名称"},
+            {"table.comment", "测试表", "数据库备注"}
     };
 
     /**
@@ -183,5 +186,23 @@ public class VarPanel extends LayoutGeneratorPanel {
     @Override
     public void onSelected() {
 
+    }
+
+    @Override
+    public Serializable getConfig() {
+        return JTableUtils.getTableData(table);
+    }
+
+    @Override
+    public void load(Serializable o) {
+        if (o instanceof Object[][]) {
+            JTableUtils.removeData(table);
+            JTableUtils.putTableData(table, ((Object[][]) o));
+        }
+    }
+
+    @Override
+    public String getConfigName() {
+        return "var.cfg";
     }
 }

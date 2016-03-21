@@ -1,4 +1,4 @@
-package org.hsweb.generator.boot.register;
+package org.hsweb.generator.app.register;
 
 import java.util.ArrayList;
 import java.util.List;

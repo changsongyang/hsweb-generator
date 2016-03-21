@@ -1,8 +1,9 @@
 package org.hsweb.generator.swing;
 
-import org.hsweb.generator.boot.GeneratorApplication;
-import org.hsweb.generator.boot.register.PropertiesRegister;
-import org.hsweb.generator.boot.register.Register;
+import org.hsweb.generator.app.GeneratorApplication;
+import org.hsweb.generator.app.register.PropertiesRegister;
+import org.hsweb.generator.app.register.Register;
+import org.hsweb.generator.config.ConfigUtils;
 import org.hsweb.generator.swing.panel.*;
 
 import javax.swing.*;
@@ -86,6 +87,7 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         renderPanel();
         //开启窗口
         this.setVisible(true);
+        loadConfig();
     }
 
     @Override
@@ -96,6 +98,31 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
     @Override
     public <T extends Register> T getRegister(Class<? extends Register> type) {
         return (T) registerMap.get(type);
+    }
+
+    public <T extends Register> T setRegister(Class<? extends Register> type, T register) {
+        registerMap.put(type, register);
+        return register;
+    }
+
+    public void saveConfig(){
+        for (GeneratorPanel panel : panels) {
+            try {
+                new ConfigUtils().saveConfig(panel);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loadConfig(){
+        for (GeneratorPanel panel : panels) {
+            try {
+                new ConfigUtils().loadConfig(panel);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

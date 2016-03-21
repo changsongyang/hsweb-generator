@@ -1,15 +1,16 @@
 package org.hsweb.generator.swing.panel;
 
-import org.hsweb.generator.boot.register.PropertiesRegister;
+import org.hsweb.generator.CodeTemplate;
+import org.hsweb.generator.Generator;
+import org.hsweb.generator.GeneratorConfiguration;
+import org.hsweb.generator.app.register.CodeTemplateRegister;
 import org.hsweb.generator.swing.SwingGeneratorApplication;
 import org.hsweb.generator.swing.logger.JTextAreaLoggerAppender;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Properties;
 
 /**
  * Created by 浩 on 2016-03-18 0018.
@@ -38,7 +39,11 @@ public class StartGeneratorPanel extends LayoutGeneratorPanel {
                             addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-                                    startGenerator();
+                                    try {
+                                        startGenerator();
+                                    } catch (Exception e1) {
+                                        logger.error("生成代码失败:", e1);
+                                    }
                                 }
                             });
                         }}
@@ -80,10 +85,14 @@ public class StartGeneratorPanel extends LayoutGeneratorPanel {
 
     }
 
-    protected void startGenerator() {
-        //获取配置
-        PropertiesRegister propertiesRegister = application.getRegister(PropertiesRegister.class);
-        Properties config = propertiesRegister.getMergedData();
-        logger.debug("获取配置:" + config);
+    protected void startGenerator() throws Exception {
+        CodeTemplateRegister codeTemplateRegister = application.getRegister(CodeTemplateRegister.class);
+        java.util.List<CodeTemplate> codeTemplates = codeTemplateRegister.getMergedData();
+        logger.debug("获取模板:" + codeTemplates);
+        GeneratorConfiguration configuration = new GeneratorConfiguration();
+        configuration.setTemplates(codeTemplates);
+        logger.debug("开始生成...");
+        Generator.execute(configuration);
+        application.saveConfig();
     }
 }

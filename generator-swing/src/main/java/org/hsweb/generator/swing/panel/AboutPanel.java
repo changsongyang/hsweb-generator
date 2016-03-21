@@ -32,7 +32,7 @@ public class AboutPanel extends LayoutGeneratorPanel {
     };
 
     public void createComponents() {
-        JLabel label = createLabel("<html>1、代码生成器源代码:<a target='_blank' href=\"https://github.com/hs-web/hsweb-generator\">https://github.com/hs-web/hsweb-generator</a></html>");
+        JLabel label = createLabel("<html>1、贡献代码-><a target='_blank' href=\"https://github.com/hs-web/hsweb-generator\">https://github.com/hs-web/hsweb-generator</a></html>");
         label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         label.addMouseListener(new MouseAdapter() {
             @Override
@@ -52,11 +52,7 @@ public class AboutPanel extends LayoutGeneratorPanel {
                 }
                 ,
                 {
-                        createLabel("2、生成器中的表格支持快捷键操作")
-                }
-                ,
-                {
-                        createLabel("3、快捷键列表:")
+                        createLabel("2、快捷键列表:")
                 }
                 , {
                 new JScrollPane() {{
@@ -91,7 +87,6 @@ public class AboutPanel extends LayoutGeneratorPanel {
             model.addRow(objects);
         }
     }
-
 
     protected JLabel createLabel(String text) {
         JLabel label = new JLabel(text);

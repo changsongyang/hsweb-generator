@@ -90,4 +90,12 @@ public class CodeTemplate implements Serializable {
     public TemplateOutput getOutput() {
         return output;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "name='" + name + '\'' +
+                ", remark='" + remark + '\'' +
+                '}';
+    }
 }
