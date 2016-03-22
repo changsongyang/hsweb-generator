@@ -47,6 +47,17 @@ public class StartGeneratorPanel extends LayoutGeneratorPanel {
                                 }
                             });
                         }}
+                        ,
+                        new JButton("清空控制台") {{
+                            setSize(150, 25);
+                            setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
+                            addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    console.setText(">控制台准备就绪!\n");
+                                }
+                            });
+                        }}
                 },
                 {},
                 {

@@ -56,4 +56,11 @@ public class DatabaseFactory {
         DataBase dataBase = new CommonDataBase(metaData, new CommonJdbcSqlExecutor(jdbcProperties));
         return dataBase;
     }
+
+    public static DataBase createDatabase(Properties properties) {
+        if (String.valueOf(properties.get("jdbc.driver.class")).contains("mysql"))
+            return createMysqlDatabase(properties);
+        else
+            return createOracleDatabase(properties);
+    }
 }

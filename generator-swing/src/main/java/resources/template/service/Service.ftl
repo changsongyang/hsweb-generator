@@ -1,25 +1,25 @@
-package ${config.packageName}.service.${config.module};
+package ${packageName}.service.${module};
 
 import org.hsweb.web.service.GenericService;
-import ${config.packageName}.po.${config.module}.${config.className};
-import ${config.packageName}.dao.${config.module}.${config.className}Mapper;
+import ${packageName}.po.${module}.${beanName};
+import ${packageName}.dao.${module}.${beanName}Mapper;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 /**
-* ${config.remark!''}服务类
+* ${beanRemark!''}服务类
 * Created by generator ${create_time!''}
 */
 @Service
-public class ${config.className}Service extends GenericService<${config.className},String> {
+public class ${beanName}Service extends GenericService<${beanName},String> {
 
     //默认数据映射接口
     @Resource
-    protected ${config.className}Mapper ${config.className?uncap_first}Mapper;
+    protected ${beanName}Mapper ${beanName?uncap_first}Mapper;
 
     @Override
-    protected ${config.className}Mapper getMapper(){
-        return this.${config.className?uncap_first}Mapper;
+    protected ${beanName}Mapper getMapper(){
+        return this.${beanName?uncap_first}Mapper;
     }
 
 }

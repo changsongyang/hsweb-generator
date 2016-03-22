@@ -1,6 +1,8 @@
 package org.hsweb.generator.swing;
 
 import org.hsweb.generator.app.GeneratorApplication;
+import org.hsweb.generator.app.register.CodeTemplateRegister;
+import org.hsweb.generator.app.register.MetaRegister;
 import org.hsweb.generator.app.register.PropertiesRegister;
 import org.hsweb.generator.app.register.Register;
 import org.hsweb.generator.config.ConfigUtils;
@@ -45,7 +47,9 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         this.setForeground(new Color(43, 43, 43));
         this.setFont(BASIC_FONT);
         //设置注册器
-        registerMap.put(PropertiesRegister.class, new PropertiesRegister());
+        setRegister(PropertiesRegister.class, new PropertiesRegister());
+        setRegister(CodeTemplateRegister.class, new CodeTemplateRegister());
+        setRegister(MetaRegister.class, new MetaRegister());
     }
 
     protected void renderPanel() {
@@ -79,10 +83,10 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
     @Override
     public void startup() {
         //注册面板
-        registerPanel(new AboutPanel());
         registerPanel(new VarPanel());
         registerPanel(new GeneratorConfigPanel());
         registerPanel(new StartGeneratorPanel());
+        registerPanel(new AboutPanel());
         //渲染面板
         renderPanel();
         //开启窗口
@@ -105,7 +109,7 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         return register;
     }
 
-    public void saveConfig(){
+    public void saveConfig() {
         for (GeneratorPanel panel : panels) {
             try {
                 new ConfigUtils().saveConfig(panel);
@@ -115,7 +119,7 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         }
     }
 
-    public void loadConfig(){
+    public void loadConfig() {
         for (GeneratorPanel panel : panels) {
             try {
                 new ConfigUtils().loadConfig(panel);
@@ -125,4 +129,8 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         }
     }
 
+    public static void main(String[] args) {
+        SwingGeneratorApplication application = new SwingGeneratorApplication();
+        application.startup();
+    }
 }

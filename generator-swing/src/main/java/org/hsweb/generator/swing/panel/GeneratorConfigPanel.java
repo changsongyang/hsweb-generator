@@ -146,7 +146,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 template.setOutput(new FreemarkerTemplateDynamicOutput(String.valueOf(row.get("output"))));
             } else if ("数据库操作".equals(row.get("type"))) {
                 template.setInput(new TableTemplateInput(metaData));
-                template.setOutput(new TableTemplateOutput(DatabaseFactory.createMysqlDatabase(config)));
+                template.setOutput(new TableTemplateOutput(DatabaseFactory.createDatabase(config)));
             }
             codeTemplates.add(template);
         }
@@ -235,7 +235,10 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                     this.addItem("true");
                     this.addItem("false");
                 }}));
-
+                getColumn("不能为空").setCellEditor(new DefaultCellEditor(new JComboBox() {{
+                    this.addItem("true");
+                    this.addItem("false");
+                }}));
                 setSize(SwingGeneratorApplication.WIDTH - 70, 190);
                 setRowMargin(2);
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
