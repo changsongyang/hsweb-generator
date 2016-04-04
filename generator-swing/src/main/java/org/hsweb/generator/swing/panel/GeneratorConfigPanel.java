@@ -16,6 +16,7 @@ import org.hsweb.generator.swing.panel.support.FileChooserCellEditor;
 import org.hsweb.generator.swing.panel.support.ShortCutsAdapter;
 import org.hsweb.generator.swing.panel.support.ShortCutsListener;
 import org.hsweb.generator.swing.utils.JTableUtils;
+import org.hsweb.generator.swing.utils.clipboard.ClipboardUtils;
 import org.hsweb.generator.template.FileTemplateInput;
 import org.webbuilder.sql.TableMetaData;
 
@@ -382,10 +383,18 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
     }
 
     protected void initFieldTableShortCuts() {
+        this.addKeyListener(fieldTableShortCuts);
         fieldTableShortCuts.bind("Ctrl+V", new ShortCutsListener() {
             @Override
             public void press() {
-
+                try {
+                    Object[][] data = ClipboardUtils.getClipboardAsTableData();
+                    for (Object[] objects : data) {
+                        ((DefaultTableModel) fieldTable.getModel()).addRow(objects);
+                    }
+                }catch (Exception e){
+                    logger.error("获取剪切板数据失败",e);
+                }
             }
         });
         fieldTableShortCuts.bind("Ctrl+D", new ShortCutsListener() {
