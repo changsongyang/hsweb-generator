@@ -25,9 +25,12 @@ import org.hsweb.generator.swing.utils.JTableUtils;
 import org.hsweb.generator.swing.utils.clipboard.ClipboardUtils;
 import org.hsweb.generator.template.FileTemplateInput;
 import org.webbuilder.sql.TableMetaData;
+import org.webbuilder.utils.common.StringUtils;
 import org.webbuilder.utils.file.FileUtils;
 
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -83,22 +86,27 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
     }
 
 
-    private void loadHeaderConfig() {
-
-    }
-
     @Override
     public void init(SwingGeneratorApplication application) {
         //加载表结构配置表格的表头数据
         try {
-            String json =  new ConfigUtils().loadConfigString("config/header.cfg.json");
+            String json = new ConfigUtils().loadConfigString("config/header.cfg.json");
             JSONObject config = JSON.parseObject(json, Feature.OrderedField);
-            headerDefault = config.getJSONArray("meta.default").toArray();
             headerConfig = config.getJSONObject("meta.header");
             filedMapper = headerConfig.keySet().toArray(new String[headerConfig.size()]);
             columnNames = new Object[filedMapper.length];
+            headerDefault = new Object[filedMapper.length];
             for (int i = 0; i < filedMapper.length; i++) {
-                columnNames[i] = headerConfig.getJSONObject(filedMapper[i]).getString("title");
+                JSONObject meta = headerConfig.getJSONObject(filedMapper[i]);
+                columnNames[i] = meta.getString("title");
+                Object def = meta.get("default");
+                if (null != def) {
+                    headerDefault[i] = def;
+                }else{
+                    if("boolean".equals(meta.getString("type"))){
+                        headerDefault[i] = false;
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error("获取表头配置失败,请检查config/header.cfg.json文件!", e);
@@ -135,7 +143,13 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
             FormCodeMeta meta = new FormCodeMeta();
             for (int i1 = 0; i1 < filedMapper.length; i1++) {
                 Object o = fieldTable.getValueAt(i, i1);
-                meta.setProperty(String.valueOf(filedMapper[i1]), o);
+                String attrName = filedMapper[i1];
+                if (StringUtils.isNullOrEmpty(o)) {
+                    if (headerDefault.length > i1) {
+                        o = headerDefault[i1];
+                    }
+                }
+                meta.setProperty(attrName, o);
             }
             codeMetas.add(meta);
         }
@@ -266,9 +280,10 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                     JSONObject meta = headerConfig.getJSONObject(field);
                     String type = meta.getString("type");
                     if (type == null) type = "string";
-                    if ("boolean".equals(type)) {
+                    final boolean isBoolean = "boolean".equals(type);
+                    if (isBoolean) {
                         meta.put("option_list", Arrays.asList(true, false));
-                        meta.put("type", type = "select");
+                        type = "select";
                     }
                     if ("select".equals(type)) {
                         JComboBox comboBox = new JComboBox();

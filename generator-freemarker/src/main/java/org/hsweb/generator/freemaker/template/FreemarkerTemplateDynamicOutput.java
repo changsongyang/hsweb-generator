@@ -1,8 +1,6 @@
 package org.hsweb.generator.freemaker.template;
 
 import org.hsweb.generator.freemaker.utils.TemplateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;

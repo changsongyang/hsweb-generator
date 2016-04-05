@@ -6,12 +6,15 @@ import org.hsweb.generator.app.register.MetaRegister;
 import org.hsweb.generator.app.register.PropertiesRegister;
 import org.hsweb.generator.app.register.Register;
 import org.hsweb.generator.config.ConfigUtils;
+import org.hsweb.generator.freemaker.utils.TemplateUtils;
 import org.hsweb.generator.swing.panel.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -38,7 +41,7 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
 
     public SwingGeneratorApplication() {
         //创建主窗体信息
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       // this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("代码生成器 v1.0 by github.com/hs-web");
         this.setSize(WIDTH, HEIGHT);
         this.setLocationRelativeTo(null);//居中
@@ -46,6 +49,12 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
         this.setBackground(new Color(43, 43, 43));
         this.setForeground(new Color(43, 43, 43));
         this.setFont(BASIC_FONT);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                shutdown();
+            }
+        });
         //设置注册器
         setRegister(PropertiesRegister.class, new PropertiesRegister());
         setRegister(CodeTemplateRegister.class, new CodeTemplateRegister());
@@ -96,6 +105,7 @@ public class SwingGeneratorApplication extends JFrame implements GeneratorApplic
 
     @Override
     public void shutdown() {
+        saveConfig();
         System.exit(0);
     }
 
