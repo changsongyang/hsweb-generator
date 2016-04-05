@@ -7,11 +7,10 @@
     "javaType": {
       "title": "java类",
       "type": "select",
-      "option_list": ["int"]
+      "option_list": ["byte","short","char","boolean","int","double","float","String","java.util.Date"]
     },
     "dataType": {
-      "title": "数据类型",
-      "type": "select"
+      "title": "数据类型"
     },
     "comment": {
       "title": "备注"
