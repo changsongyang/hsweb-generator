@@ -1,13 +1,15 @@
 # 代码生成器
-## 1、运行
-* [下载](https://github.com/hs-web/hsweb-generator/blob/master/generator-swing/bin/%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E5%99%A8.zip?raw=true)
-* 解压
-* Windows环境运行 run.bat
-* Linux环境运行run.sh （需要桌面环境支持）
-* 或者使用命令运行：
-``` shell
-    $ java -cp generator-swing.jar org.hsweb.generator.swing.SwingGeneratorApplication
+## 1、编译运行
+```shell
+  $ git clone https://github.com/hs-web/hsweb-generator.git
+  $ cd hsweb-generator
+  $ mvn install
+  $ cd generator-swing
+  $ mvn assembly:assembly
+  $ cd ..
+  $ java -jar generator-swing/target/hsweb-generator-jar-with-dependencies.jar
 ```
+linux 环境可直接运行 build.sh和run.sh
 
 * 快捷键，变量设置和模板设置中的表结构表格支持CTRL+V快捷键。可直接从剪切板中粘贴（如果无法粘贴，请先创建一行并选中，粘贴后删掉即可）
 ## 2、配置变量
