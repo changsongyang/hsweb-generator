@@ -9,7 +9,7 @@
   $ cd ..
   $ java -jar generator-swing/target/hsweb-generator-jar-with-dependencies.jar
 ```
-linux 环境可直接运行 build.sh和run.sh
+linux 环境可直接运行 generator-swing/build.sh和generator-swing/run.sh
 
 * 快捷键，变量设置和模板设置中的表结构表格支持CTRL+V快捷键。可直接从剪切板中粘贴（如果无法粘贴，请先创建一行并选中，粘贴后删掉即可）
 ## 2、配置变量
