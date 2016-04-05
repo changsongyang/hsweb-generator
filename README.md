@@ -1,8 +1,10 @@
 # 代码生成器
 ## 1、运行
-* Windows环境运行 run.bar
+* [下载](https://github.com/hs-web/hsweb-generator/blob/master/generator-swing/bin/%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E5%99%A8.zip?raw=true)
+* 解压
+* Windows环境运行 run.bat
 * Linux环境运行run.sh （需要桌面环境支持）
-* 其他环境运行命令：
+* 或者使用命令运行：
 ``` shell
     $ java -cp generator-swing.jar org.hsweb.generator.swing.SwingGeneratorApplication
 ```
@@ -24,9 +26,9 @@
 2. 其他内置对象
  
 |               变量                 |            说明                        | 
-| -----------------------------------|:--------------------------------------:| 
+| -------------------------------|:--------------------------------------:| 
 | tableMeta                          | 结构定义                                     | 
-| tableMeta.name                     | 表名，通过变量 table.name进行设置|
-| tableMeta.comment                  | 表备注，通过变量table.comment进行设置 |
+| tableMeta.name                     | 表名，通过变量 table.name进行设置             |
+| tableMeta.comment                  | 表备注，通过变量table.comment进行设置        |
 | tableMeta.fields                   | 配置的字段信息，类型为 List<org.webbuilder.sql.FieldMetaData>  [查看类型详情](https://github.com/hs-web/webbuilder/blob/master/wb-sql-util/src/main/java/org/webbuilder/sql/FieldMetaData.java)                  |
 | tableMeta.attr(String name)        |获取自定义的属性(在结构表头定义配置文件(config/header.cfg.json)中，没有与默认属性关联上的属性，将通过此方法获取)               |
