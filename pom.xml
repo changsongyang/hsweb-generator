@@ -36,6 +36,12 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/resources</directory>
+            </resource>
+        </resources>
+
         <finalName>hsweb-generator</finalName>
         <plugins>
             <plugin>

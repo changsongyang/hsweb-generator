@@ -203,6 +203,6 @@ public class VarPanel extends LayoutGeneratorPanel {
 
     @Override
     public String getConfigName() {
-        return "var.cfg";
+        return "config/var.cfg";
     }
 }

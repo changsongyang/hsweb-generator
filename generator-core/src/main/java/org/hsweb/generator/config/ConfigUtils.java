@@ -12,6 +12,11 @@ public class ConfigUtils {
     public String savePath = System.getProperty("user.dir");
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public String loadConfigString(String name) throws Exception {
+        File configFile = new File(savePath.concat(File.separator).concat(name));
+        return FileUtils.readFile2String(configFile.getAbsolutePath(),"utf8");
+    }
+
     public void loadConfig(Configurable configurable) throws Exception {
         String configName = configurable.getConfigName();
         File configFile = new File(savePath.concat(File.separator).concat(configName));

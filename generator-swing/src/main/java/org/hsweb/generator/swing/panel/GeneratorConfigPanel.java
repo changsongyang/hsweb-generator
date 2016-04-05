@@ -1,11 +1,17 @@
 package org.hsweb.generator.swing.panel;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.util.IOUtils;
 import org.hsweb.generator.CodeMeta;
 import org.hsweb.generator.CodeTemplate;
 import org.hsweb.generator.app.register.CodeTemplateRegister;
 import org.hsweb.generator.app.register.MetaRegister;
 import org.hsweb.generator.app.register.PropertiesRegister;
 import org.hsweb.generator.app.register.Wrapper;
+import org.hsweb.generator.config.ConfigUtils;
 import org.hsweb.generator.db.DatabaseFactory;
 import org.hsweb.generator.db.FormCodeMeta;
 import org.hsweb.generator.db.template.TableTemplateInput;
@@ -19,6 +25,7 @@ import org.hsweb.generator.swing.utils.JTableUtils;
 import org.hsweb.generator.swing.utils.clipboard.ClipboardUtils;
 import org.hsweb.generator.template.FileTemplateInput;
 import org.webbuilder.sql.TableMetaData;
+import org.webbuilder.utils.file.FileUtils;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -28,8 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -38,8 +44,22 @@ import java.util.List;
  */
 public class GeneratorConfigPanel extends LayoutGeneratorPanel {
 
-    protected final String columnNames[] = {"名称", "java类", "数据类型", "备注", "默认值", "主键", "不能为空", "自定义属性(json)"};
-    protected final String filedMapper[] = {"name", "javaType", "dataType", "comment", "defaultValue", "primaryKey", "notNull", "attr"};
+    /**
+     * 表结构表格：列名数组
+     */
+    protected Object columnNames[];
+    /**
+     * 表结构表格：列名和字段映射
+     */
+    protected String filedMapper[];
+    /**
+     * 表结构表格：新增时的默认值
+     */
+    protected Object headerDefault[];
+    /**
+     * 表结构表格的完整配置
+     */
+    protected JSONObject headerConfig;
 
     protected final String templateColumnNames[] = {"模板名称", "模板类型", "备注", "输入", "输出"};
     protected final String templateColumnMapper[] = {"name", "type", "comment", "input", "output"};
@@ -62,8 +82,27 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         return "模板配置";
     }
 
+
+    private void loadHeaderConfig() {
+
+    }
+
     @Override
     public void init(SwingGeneratorApplication application) {
+        //加载表结构配置表格的表头数据
+        try {
+            String json =  new ConfigUtils().loadConfigString("config/header.cfg.json");
+            JSONObject config = JSON.parseObject(json, Feature.OrderedField);
+            headerDefault = config.getJSONArray("meta.default").toArray();
+            headerConfig = config.getJSONObject("meta.header");
+            filedMapper = headerConfig.keySet().toArray(new String[headerConfig.size()]);
+            columnNames = new Object[filedMapper.length];
+            for (int i = 0; i < filedMapper.length; i++) {
+                columnNames[i] = headerConfig.getJSONObject(filedMapper[i]).getString("title");
+            }
+        } catch (Exception e) {
+            logger.error("获取表头配置失败,请检查config/header.cfg.json文件!", e);
+        }
         super.init(application);
         createComponents();
         layoutComponents();
@@ -96,7 +135,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
             FormCodeMeta meta = new FormCodeMeta();
             for (int i1 = 0; i1 < filedMapper.length; i1++) {
                 Object o = fieldTable.getValueAt(i, i1);
-                meta.setProperty(filedMapper[i1], o);
+                meta.setProperty(String.valueOf(filedMapper[i1]), o);
             }
             codeMetas.add(meta);
         }
@@ -223,23 +262,25 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         final DefaultTableModel model = new DefaultTableModel(cellData, columnNames);
         fieldTable = new JTable(model) {
             {
-                getColumn("java类").setCellEditor(new DefaultCellEditor(new JComboBox() {{
-                    this.addItem("byte");
-                    this.addItem("int");
-                    this.addItem("boolean");
-                    this.addItem("double");
-                    this.addItem("float");
-                    this.addItem("String");
-                    this.addItem("java.util.Date");
-                }}));
-                getColumn("主键").setCellEditor(new DefaultCellEditor(new JComboBox() {{
-                    this.addItem("true");
-                    this.addItem("false");
-                }}));
-                getColumn("不能为空").setCellEditor(new DefaultCellEditor(new JComboBox() {{
-                    this.addItem("true");
-                    this.addItem("false");
-                }}));
+                for (String field : filedMapper) {
+                    JSONObject meta = headerConfig.getJSONObject(field);
+                    String type = meta.getString("type");
+                    if (type == null) type = "string";
+                    if ("boolean".equals(type)) {
+                        meta.put("option_list", Arrays.asList(true, false));
+                        meta.put("type", type = "select");
+                    }
+                    if ("select".equals(type)) {
+                        JComboBox comboBox = new JComboBox();
+                        JSONArray array = meta.getJSONArray("option_list");
+                        if (array != null)
+                            for (Object option : array) {
+                                comboBox.addItem(option);
+                            }
+                        DefaultCellEditor editor = new DefaultCellEditor(comboBox);
+                        getColumn(meta.getString("title")).setCellEditor(editor);
+                    }
+                }
                 setSize(SwingGeneratorApplication.WIDTH - 70, 190);
                 setRowMargin(2);
                 setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
@@ -270,7 +311,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                             addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-                                    ((DefaultTableModel) fieldTable.getModel()).addRow(new Object[]{"", "String", "varchar2(256)", "新建字段", "", false, false, "{}"});
+                                    ((DefaultTableModel) fieldTable.getModel()).addRow(headerDefault);
                                 }
                             });
                         }},
@@ -392,8 +433,8 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                     for (Object[] objects : data) {
                         ((DefaultTableModel) fieldTable.getModel()).addRow(objects);
                     }
-                }catch (Exception e){
-                    logger.error("获取剪切板数据失败",e);
+                } catch (Exception e) {
+                    logger.error("获取剪切板数据失败", e);
                 }
             }
         });
@@ -444,6 +485,6 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
 
     @Override
     public String getConfigName() {
-        return "template.cfg";
+        return "config/template.cfg";
     }
 }

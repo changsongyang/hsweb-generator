@@ -17,9 +17,5 @@
     <root level="ON">
         <appender-ref ref="Console"/>
         <appender-ref ref="JTextArea"/>
-        <!--
-        <appender-ref ref="DB" />
-        <appender-ref ref="File" />
-         -->
     </root>
 </configuration>

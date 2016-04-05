@@ -24,7 +24,7 @@ public class FileTemplateInput implements TemplateInput {
     @Override
     public String read() throws Exception {
         try {
-            return FileUtils.readFile2String(file.getAbsolutePath());
+            return FileUtils.readFile2String(file.getAbsolutePath(),"utf8");
         } catch (Exception e) {
             throw e;
         }
