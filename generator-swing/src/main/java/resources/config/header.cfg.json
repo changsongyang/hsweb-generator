@@ -28,10 +28,11 @@
       "mapper": {
         "^varchar.*": "string",
         "number": "double",
-        "number\\([1-32]\\d\\)": "int",
-        "number\\([1-32]\\d,\\d\\)": "double",
+        "number\\(([1-9]\\d{0,2}+)\\)": "int",
+        "number\\(([1-9]\\d{0,2}+,[1-9]\\d{0,2}+)\\)": "double",
         "clob": "string",
         "date": "date",
+        "timestamp\\(([1-9]\\d{0,2}+)\\)",
         "timestamp": "date"
       }
     },
