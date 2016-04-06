@@ -4,6 +4,21 @@
       "title": "名称",
       "default": ""
     },
+    "dataType": {
+      "title": "数据类型",
+      "default": "varchar",
+      "lowerCase": true,
+      "mapper.javaType": {
+        "^varchar.*": "string",
+        "number": "double",
+        "number\\(([1-9]\\d{0,2}+)\\)": "int",
+        "number\\(([1-9]\\d{0,2}+,[1-9]\\d{0,2}+)\\)": "double",
+        "clob": "string",
+        "date": "date",
+        "timestamp\\(([1-9]\\d{0,2}+)\\)": "date",
+        "timestamp": "date"
+      }
+    },
     "javaType": {
       "title": "java类",
       "type": "select",
@@ -20,21 +35,6 @@
       ],
       "default": "String",
       "mapperBind": "dataType"
-    },
-    "dataType": {
-      "title": "数据类型",
-      "default": "varchar",
-      "lowerCase": true,
-      "mapper": {
-        "^varchar.*": "string",
-        "number": "double",
-        "number\\(([1-9]\\d{0,2}+)\\)": "int",
-        "number\\(([1-9]\\d{0,2}+,[1-9]\\d{0,2}+)\\)": "double",
-        "clob": "string",
-        "date": "date",
-        "timestamp\\(([1-9]\\d{0,2}+)\\)",
-        "timestamp": "date"
-      }
     },
     "comment": {
       "title": "备注",
