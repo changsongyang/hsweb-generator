@@ -17,7 +17,8 @@
         "date": "date",
         "timestamp\\(([1-9]\\d{0,2}+)\\)": "date",
         "timestamp": "date"
-      }
+      },
+      "注意":"mapper.javaType 代表与字段javaType进行绑定，当javaType字段的值为空时，使用此映射进行匹配(正则表达式)"
     },
     "javaType": {
       "title": "java类",
@@ -34,7 +35,8 @@
         "date"
       ],
       "default": "String",
-      "mapperBind": "dataType"
+      "mapperBind": "dataType",
+      "注意":"mapperBind 代表与字段dataType进行绑定，当字段的值为空时，使用dataType字段中的mapper.javaType 来进行匹配(正则表达式)"
     },
     "comment": {
       "title": "备注",
