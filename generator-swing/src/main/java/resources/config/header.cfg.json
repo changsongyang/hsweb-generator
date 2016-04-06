@@ -2,35 +2,56 @@
   "meta.header": {
     "name": {
       "title": "名称",
-      "default":""
+      "default": ""
     },
     "javaType": {
       "title": "java类",
       "type": "select",
-      "option_list": ["byte","short","char","boolean","int","double","float","String","java.util.Date"],
-      "default":"String"
+      "option_list": [
+        "byte",
+        "short",
+        "char",
+        "boolean",
+        "int",
+        "double",
+        "float",
+        "string",
+        "date"
+      ],
+      "default": "String",
+      "mapperBind": "dataType"
     },
     "dataType": {
       "title": "数据类型",
-      "default":"varchar"
+      "default": "varchar",
+      "lowerCase": true,
+      "mapper": {
+        "^varchar.*": "string",
+        "number": "double",
+        "number\\([1-32]\\d\\)": "int",
+        "number\\([1-32]\\d,\\d\\)": "double",
+        "clob": "string",
+        "date": "date",
+        "timestamp": "date"
+      }
     },
     "comment": {
       "title": "备注",
-      "default":"新建字段"
+      "default": "新建字段"
     },
     "defaultValue": {
       "title": "默认值",
-      "default":""
+      "default": ""
     },
     "primaryKey": {
       "title": "是否主键",
       "type": "boolean",
-      "default":"false"
+      "default": "false"
     },
     "notNull": {
       "title": "不能为空",
       "type": "boolean",
-      "default":"false"
+      "default": "false"
     }
   }
 }
