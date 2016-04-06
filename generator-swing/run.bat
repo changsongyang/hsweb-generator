@@ -1,0 +1,1 @@
+java -cp hsweb-generator.run.jar org.hsweb.generator.swing.SwingGeneratorApplication
