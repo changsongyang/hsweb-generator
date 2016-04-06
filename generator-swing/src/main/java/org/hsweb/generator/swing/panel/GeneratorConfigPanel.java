@@ -31,6 +31,8 @@ import org.webbuilder.utils.file.FileUtils;
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -38,6 +40,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -277,6 +282,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         fieldTable = new JTable(model) {
             {
                 for (String field : filedMapper) {
+                    DefaultCellEditor editor;
                     JSONObject meta = headerConfig.getJSONObject(field);
                     String type = meta.getString("type");
                     if (type == null) type = "string";
@@ -292,9 +298,11 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                             for (Object option : array) {
                                 comboBox.addItem(option);
                             }
-                        DefaultCellEditor editor = new DefaultCellEditor(comboBox);
-                        getColumn(meta.getString("title")).setCellEditor(editor);
+                        editor = new DefaultCellEditor(comboBox);
+                    } else {
+                        editor = new DefaultCellEditor(new JTextField());
                     }
+                    getColumn(meta.getString("title")).setCellEditor(editor);
                 }
                 setSize(SwingGeneratorApplication.WIDTH - 70, 190);
                 setRowMargin(2);
@@ -310,6 +318,32 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 e.consume();
+            }
+        });
+        fieldTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if (e.getColumn() >= 0 && e.getFirstRow() == e.getLastRow()) {
+                    DefaultTableModel model = ((DefaultTableModel) e.getSource());
+                    String field = filedMapper[e.getColumn()];
+                    JSONObject fieldObj = headerConfig.getJSONObject(field);
+                    Object matchesValue = model.getValueAt(e.getFirstRow(), e.getColumn());
+                    for (Map.Entry<String, Object> entry : fieldObj.entrySet()) {
+                        if (entry.getKey().startsWith("mapper.")) {
+                            //关联了另外一个字段
+                            String targetField = entry.getKey().split("[.]")[1];
+                            int targetIndex = Arrays.asList(filedMapper).indexOf(targetField);
+                            JSONObject mapper = ((JSONObject) entry.getValue());
+                            for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
+                                //要匹配的值
+                                if (String.valueOf(matchesValue).matches(tmp.getKey())) {
+                                    model.setValueAt(tmp.getValue(),e.getFirstRow(),targetIndex);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         });
     }
@@ -438,7 +472,10 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         });
     }
 
-    protected List<Map<String, Object>> transData(Object[][] datas, String[] field) {
+    /**
+     * 将二维数组转换为List
+     */
+    protected List<Map<String, Object>> transFieldTableData(Object[][] datas, String[] field) {
         List<Map<String, Object>> list = new ArrayList<>();
         for (Object[] data : datas) {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -467,24 +504,26 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
             public void press() {
                 try {
                     Object[][] data = ClipboardUtils.getClipboardAsTableData();
-                    List<Map<String, Object>> datas = transData(data, filedMapper);
+                    List<Map<String, Object>> datas = transFieldTableData(data, filedMapper);
                     for (Map<String, Object> map : datas) {
                         for (Map.Entry<String, Object> entry : map.entrySet()) {
                             String key = entry.getKey();
                             Object value = entry.getValue();
+                            //如果字段的值为null时，将尝试使用其他的字段值进行映射转换
                             if (StringUtils.isNullOrEmpty(value)) {
                                 JSONObject jsonObject = headerConfig.getJSONObject(key);
                                 String bind = jsonObject.getString("mapperBind");
                                 if (StringUtils.isNullOrEmpty(bind)) {
+                                    //如果没有配置映射字段，将使用默认值
                                     value = jsonObject.get("default");
                                 } else {
                                     JSONObject bindField = headerConfig.getJSONObject(bind);
                                     if (bindField != null) {
-                                        JSONObject mapper = bindField.getJSONObject("mapper");
+                                        JSONObject mapper = bindField.getJSONObject("mapper.".concat(key));
                                         for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
                                             //要匹配的值
-                                            Object thisvalue = map.get(bind);
-                                            if (String.valueOf(thisvalue).matches(tmp.getKey())) {
+                                            Object matchesValue = map.get(bind);
+                                            if (String.valueOf(matchesValue).matches(tmp.getKey())) {
                                                 value = tmp.getValue();
                                                 break;
                                             }
