@@ -102,8 +102,8 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 Object def = meta.get("default");
                 if (null != def) {
                     headerDefault[i] = def;
-                }else{
-                    if("boolean".equals(meta.getString("type"))){
+                } else {
+                    if ("boolean".equals(meta.getString("type"))) {
                         headerDefault[i] = false;
                     }
                 }
@@ -438,6 +438,28 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         });
     }
 
+    protected List<Map<String, Object>> transData(Object[][] datas, String[] field) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Object[] data : datas) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            for (int i = 0; i < field.length; i++) {
+                if (data.length >= i) {
+                    String key = field[i];
+                    Object value = data[i];
+                    JSONObject conf = headerConfig.getJSONObject(key);
+                    boolean lowerCase = conf.getBooleanValue("lowerCase");
+                    if (lowerCase) value = String.valueOf(value).toLowerCase();
+                    if ("boolean".equals(conf.getString("type"))) {
+                        value = String.valueOf(value).toLowerCase().contains("true");
+                    }
+                    map.put(key, value);
+                }
+            }
+            list.add(map);
+        }
+        return list;
+    }
+
     protected void initFieldTableShortCuts() {
         this.addKeyListener(fieldTableShortCuts);
         fieldTableShortCuts.bind("Ctrl+V", new ShortCutsListener() {
@@ -445,8 +467,34 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
             public void press() {
                 try {
                     Object[][] data = ClipboardUtils.getClipboardAsTableData();
-                    for (Object[] objects : data) {
-                        ((DefaultTableModel) fieldTable.getModel()).addRow(objects);
+                    List<Map<String, Object>> datas = transData(data, filedMapper);
+                    for (Map<String, Object> map : datas) {
+                        for (Map.Entry<String, Object> entry : map.entrySet()) {
+                            String key = entry.getKey();
+                            Object value = entry.getValue();
+                            if (StringUtils.isNullOrEmpty(value)) {
+                                JSONObject jsonObject = headerConfig.getJSONObject(key);
+                                String bind = jsonObject.getString("mapperBind");
+                                if (StringUtils.isNullOrEmpty(bind)) {
+                                    value = jsonObject.get("default");
+                                } else {
+                                    JSONObject bindField = headerConfig.getJSONObject(bind);
+                                    if (bindField != null) {
+                                        JSONObject mapper = bindField.getJSONObject("mapper");
+                                        for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
+                                            //要匹配的值
+                                            Object thisvalue = map.get(bind);
+                                            if (String.valueOf(thisvalue).matches(tmp.getKey())) {
+                                                value = tmp.getValue();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            entry.setValue(value);
+                        }
+                        ((DefaultTableModel) fieldTable.getModel()).addRow(map.values().toArray());
                     }
                 } catch (Exception e) {
                     logger.error("获取剪切板数据失败", e);
