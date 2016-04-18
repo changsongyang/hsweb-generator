@@ -337,7 +337,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                             for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
                                 //要匹配的值
                                 if (String.valueOf(matchesValue).matches(tmp.getKey())) {
-                                    model.setValueAt(tmp.getValue(),e.getFirstRow(),targetIndex);
+                                    model.setValueAt(tmp.getValue(), e.getFirstRow(), targetIndex);
                                     break;
                                 }
                             }
@@ -480,17 +480,20 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
         for (Object[] data : datas) {
             Map<String, Object> map = new LinkedHashMap<>();
             for (int i = 0; i < field.length; i++) {
-                if (data.length >= i) {
-                    String key = field[i];
-                    Object value = data[i];
+                String key = field[i];
+                Object value;
+                if (data.length > i) {
+                    value = data[i];
                     JSONObject conf = headerConfig.getJSONObject(key);
                     boolean lowerCase = conf.getBooleanValue("lowerCase");
                     if (lowerCase) value = String.valueOf(value).toLowerCase();
                     if ("boolean".equals(conf.getString("type"))) {
                         value = String.valueOf(value).toLowerCase().contains("true");
                     }
-                    map.put(key, value);
+                } else {
+                    value = "";
                 }
+                map.put(key, value);
             }
             list.add(map);
         }
