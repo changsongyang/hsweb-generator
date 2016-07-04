@@ -9,10 +9,10 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>generator-freemarker</module>
-        <module>generator-database</module>
-        <module>generator-swing</module>
-        <module>generator-core</module>
+        <module>hsweb-generator-freemarker</module>
+        <module>hsweb-generator-database</module>
+        <module>hsweb-generator-swing</module>
+        <module>hsweb-generator-core</module>
     </modules>
 
     <dependencies>
@@ -35,8 +35,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
