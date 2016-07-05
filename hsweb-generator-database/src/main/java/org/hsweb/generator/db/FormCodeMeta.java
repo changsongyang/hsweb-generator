@@ -29,6 +29,14 @@ public class FormCodeMeta implements CodeMeta {
         typeMapper.put("double", double.class);
         typeMapper.put("boolean", boolean.class);
         typeMapper.put("int", int.class);
+        typeMapper.put("Integer", Integer.class);
+        typeMapper.put("integer", Integer.class);
+        typeMapper.put("Boolean", Boolean.class);
+        typeMapper.put("Float", Float.class);
+        typeMapper.put("Double", Double.class);
+        typeMapper.put("Long", Long.class);
+        typeMapper.put("Char", Character.class);
+        typeMapper.put("Short", Short.class);
         typeMapper.put("date", Date.class);
     }
 

@@ -2,6 +2,7 @@ package org.hsweb.generator.app.register;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 抽象注册器实现
@@ -29,11 +30,7 @@ public abstract class AbstractRegister<T> implements Register<T> {
      * 获取包装器里的所有数据
      */
     public List<T> getDataList() {
-        List<T> dataList = new ArrayList<>();
-        for (Wrapper<T> wrapper : wrapperList) {
-            dataList.add(wrapper.get());
-        }
-        return dataList;
+        return wrapperList.stream().map(Wrapper::get).collect(Collectors.toList());
     }
 
 }

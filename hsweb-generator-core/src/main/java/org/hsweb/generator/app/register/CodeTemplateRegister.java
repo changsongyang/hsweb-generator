@@ -13,9 +13,7 @@ public class CodeTemplateRegister extends AbstractRegister<List<CodeTemplate>> {
     @Override
     public List<CodeTemplate> getMergedData() {
         List<CodeTemplate> tmp = new ArrayList<>();
-        for (List<CodeTemplate> codeTemplates : getDataList()) {
-            tmp.addAll(codeTemplates);
-        }
+        getDataList().forEach(tmp::addAll);
         return tmp;
     }
 }

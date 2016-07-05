@@ -289,9 +289,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                         JComboBox comboBox = new JComboBox();
                         JSONArray array = meta.getJSONArray("option_list");
                         if (array != null)
-                            for (Object option : array) {
-                                comboBox.addItem(option);
-                            }
+                            array.forEach(comboBox::addItem);
                         editor = new DefaultCellEditor(comboBox);
                     } else {
                         editor = new DefaultCellEditor(new JTextField());
@@ -314,26 +312,23 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                 e.consume();
             }
         });
-        fieldTable.getModel().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                if (e.getColumn() >= 0 && e.getFirstRow() == e.getLastRow()) {
-                    DefaultTableModel model = ((DefaultTableModel) e.getSource());
-                    String field = filedMapper[e.getColumn()];
-                    JSONObject fieldObj = headerConfig.getJSONObject(field);
-                    Object matchesValue = model.getValueAt(e.getFirstRow(), e.getColumn());
-                    for (Map.Entry<String, Object> entry : fieldObj.entrySet()) {
-                        if (entry.getKey().startsWith("mapper.")) {
-                            //关联了另外一个字段
-                            String targetField = entry.getKey().split("[.]")[1];
-                            int targetIndex = Arrays.asList(filedMapper).indexOf(targetField);
-                            JSONObject mapper = ((JSONObject) entry.getValue());
-                            for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
-                                //要匹配的值
-                                if (String.valueOf(matchesValue).matches(tmp.getKey())) {
-                                    model.setValueAt(tmp.getValue(), e.getFirstRow(), targetIndex);
-                                    break;
-                                }
+        fieldTable.getModel().addTableModelListener(e -> {
+            if (e.getColumn() >= 0 && e.getFirstRow() == e.getLastRow()) {
+                DefaultTableModel model1 = ((DefaultTableModel) e.getSource());
+                String field = filedMapper[e.getColumn()];
+                JSONObject fieldObj = headerConfig.getJSONObject(field);
+                Object matchesValue = model1.getValueAt(e.getFirstRow(), e.getColumn());
+                for (Map.Entry<String, Object> entry : fieldObj.entrySet()) {
+                    if (entry.getKey().startsWith("mapper.")) {
+                        //关联了另外一个字段
+                        String targetField = entry.getKey().split("[.]")[1];
+                        int targetIndex = Arrays.asList(filedMapper).indexOf(targetField);
+                        JSONObject mapper = ((JSONObject) entry.getValue());
+                        for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
+                            //要匹配的值
+                            if (String.valueOf(matchesValue).matches(tmp.getKey())) {
+                                model1.setValueAt(tmp.getValue(), e.getFirstRow(), targetIndex);
+                                break;
                             }
                         }
                     }
@@ -351,22 +346,12 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                         new JButton("添加") {{
                             setSize(80, 25);
                             setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                            addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    ((DefaultTableModel) fieldTable.getModel()).addRow(headerDefault);
-                                }
-                            });
+                            addActionListener(e -> ((DefaultTableModel) fieldTable.getModel()).addRow(headerDefault));
                         }},
                         new JButton("删除") {{
                             setSize(80, 25);
                             setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                            addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    JTableUtils.removeSelectedRows(fieldTable);
-                                }
-                            });
+                            addActionListener(e -> JTableUtils.removeSelectedRows(fieldTable));
                         }}
 //                        ,
 //                        new JButton("导入excel") {{
@@ -422,22 +407,12 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
                         new JButton("添加") {{
                             setSize(80, 25);
                             setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                            addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    ((DefaultTableModel) templateTable.getModel()).addRow(new Object[]{"Controller", "freemarker", "新建模板", ""});
-                                }
-                            });
+                            addActionListener(e -> ((DefaultTableModel) templateTable.getModel()).addRow(new Object[]{"Controller", "freemarker", "新建模板", ""}));
                         }},
                         new JButton("删除") {{
                             setSize(80, 25);
                             setFont(SwingGeneratorApplication.BASIC_FONT_MIN);
-                            addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    JTableUtils.removeSelectedRows(templateTable);
-                                }
-                            });
+                            addActionListener(e -> JTableUtils.removeSelectedRows(templateTable));
                         }},
                 }
                 ,
@@ -452,18 +427,8 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
     }
 
     protected void initTemplateTableShortCuts() {
-        templateTableShortCuts.bind("Ctrl+V", new ShortCutsListener() {
-            @Override
-            public void press() {
-
-            }
-        });
-        templateTableShortCuts.bind("Ctrl+D", new ShortCutsListener() {
-            @Override
-            public void press() {
-                JTableUtils.removeSelectedRows(templateTable);
-            }
-        });
+        templateTableShortCuts.bind("Ctrl+V", () -> {});
+        templateTableShortCuts.bind("Ctrl+D", () -> JTableUtils.removeSelectedRows(templateTable));
     }
 
     /**
@@ -496,53 +461,45 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
 
     protected void initFieldTableShortCuts() {
         this.addKeyListener(fieldTableShortCuts);
-        fieldTableShortCuts.bind("Ctrl+V", new ShortCutsListener() {
-            @Override
-            public void press() {
-                try {
-                    Object[][] data = ClipboardUtils.getClipboardAsTableData();
-                    List<Map<String, Object>> datas = transFieldTableData(data, filedMapper);
-                    for (Map<String, Object> map : datas) {
-                        for (Map.Entry<String, Object> entry : map.entrySet()) {
-                            String key = entry.getKey();
-                            Object value = entry.getValue();
-                            //如果字段的值为null时，将尝试使用其他的字段值进行映射转换
-                            if (StringUtils.isNullOrEmpty(value)) {
-                                JSONObject jsonObject = headerConfig.getJSONObject(key);
-                                String bind = jsonObject.getString("mapperBind");
-                                if (StringUtils.isNullOrEmpty(bind)) {
-                                    //如果没有配置映射字段，将使用默认值
-                                    value = jsonObject.get("default");
-                                } else {
-                                    JSONObject bindField = headerConfig.getJSONObject(bind);
-                                    if (bindField != null) {
-                                        JSONObject mapper = bindField.getJSONObject("mapper.".concat(key));
-                                        for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
-                                            //要匹配的值
-                                            Object matchesValue = map.get(bind);
-                                            if (String.valueOf(matchesValue).matches(tmp.getKey())) {
-                                                value = tmp.getValue();
-                                                break;
-                                            }
+        fieldTableShortCuts.bind("Ctrl+V", () -> {
+            try {
+                Object[][] data = ClipboardUtils.getClipboardAsTableData();
+                List<Map<String, Object>> datas = transFieldTableData(data, filedMapper);
+                for (Map<String, Object> map : datas) {
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        String key = entry.getKey();
+                        Object value = entry.getValue();
+                        //如果字段的值为null时，将尝试使用其他的字段值进行映射转换
+                        if (StringUtils.isNullOrEmpty(value)) {
+                            JSONObject jsonObject = headerConfig.getJSONObject(key);
+                            String bind = jsonObject.getString("mapperBind");
+                            if (StringUtils.isNullOrEmpty(bind)) {
+                                //如果没有配置映射字段，将使用默认值
+                                value = jsonObject.get("default");
+                            } else {
+                                JSONObject bindField = headerConfig.getJSONObject(bind);
+                                if (bindField != null) {
+                                    JSONObject mapper = bindField.getJSONObject("mapper.".concat(key));
+                                    for (Map.Entry<String, Object> tmp : mapper.entrySet()) {
+                                        //要匹配的值
+                                        Object matchesValue = map.get(bind);
+                                        if (String.valueOf(matchesValue).matches(tmp.getKey())) {
+                                            value = tmp.getValue();
+                                            break;
                                         }
                                     }
                                 }
                             }
-                            entry.setValue(value);
                         }
-                        ((DefaultTableModel) fieldTable.getModel()).addRow(map.values().toArray());
+                        entry.setValue(value);
                     }
-                } catch (Exception e) {
-                    logger.error("获取剪切板数据失败", e);
+                    ((DefaultTableModel) fieldTable.getModel()).addRow(map.values().toArray());
                 }
+            } catch (Exception e) {
+                logger.error("获取剪切板数据失败", e);
             }
         });
-        fieldTableShortCuts.bind("Ctrl+D", new ShortCutsListener() {
-            @Override
-            public void press() {
-                JTableUtils.removeSelectedRows(fieldTable);
-            }
-        });
+        fieldTableShortCuts.bind("Ctrl+D", () -> JTableUtils.removeSelectedRows(fieldTable));
     }
 
     @Override
@@ -562,9 +519,7 @@ public class GeneratorConfigPanel extends LayoutGeneratorPanel {
             for (int i = 0; i < rowCount; i++) {
                 ((DefaultTableModel) templateTable.getModel()).removeRow(i);
             }
-            for (Object[] data : ((ArrayList<Object[]>) o)) {
-                ((DefaultTableModel) templateTable.getModel()).addRow(data);
-            }
+            ((ArrayList<Object[]>) o).forEach(((DefaultTableModel) templateTable.getModel())::addRow);
         }
     }
 

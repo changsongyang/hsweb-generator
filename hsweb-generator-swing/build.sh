@@ -10,7 +10,7 @@ touch install.log
 mvn install -Dmaven.test.skip > install.log
 install_result=$(cat install.log | tail -10)
 if [[ $install_result =~ "BUILD SUCCESS" ]];then
-      cd generator-swing
+      cd hsweb-generator-swing
       mvn assembly:assembly -Dmaven.test.skip > install.log
       install_result=$(cat install.log | tail -10)
       if [[ $install_result =~ "BUILD SUCCESS" ]];then

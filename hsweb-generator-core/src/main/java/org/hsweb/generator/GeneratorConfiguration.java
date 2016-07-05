@@ -17,12 +17,7 @@ public class GeneratorConfiguration {
     private List<CodeTemplate> templates = new LinkedList<>();
 
     //生成回调
-    private GeneratorProcessCallBack callBack = new GeneratorProcessCallBack() {
-        @Override
-        public void process(int step, String message) {
-
-        }
-    };
+    private GeneratorProcessCallBack callBack = (step, message) -> {};
 
     public String getName() {
         return name;
